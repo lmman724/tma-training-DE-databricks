@@ -1,5 +1,5 @@
 import requests
-
+import os
 
 source_url_health_january = "https://hadoop-and-big-data.s3-us-west-2.amazonaws.com/fitness-tracker/health_tracker_data_2020_1.json"
 
@@ -27,3 +27,30 @@ print(health_tracker_data_2020_2_late.text)
 print(health_tracker_data_2020_3.text)
 print(health_tracker_data_2020_4.text)
 print(health_tracker_data_2020_5.text)
+
+path_dir_1 = r"C:\Users\lmman\OneDrive\Documents\Git\TMA Project\Azure\tma-training-DE-databricks\heartbeat_data\health_tracker_data_2020_1.txt"
+path_dir_2 = r"C:\Users\lmman\OneDrive\Documents\Git\TMA Project\Azure\tma-training-DE-databricks\heartbeat_data\health_tracker_data_2020_2.txt"
+path_dir_2_late = r"C:\Users\lmman\OneDrive\Documents\Git\TMA Project\Azure\tma-training-DE-databricks\heartbeat_data\health_tracker_data_2020_2_late.txt"
+path_dir_3 = r"C:\Users\lmman\OneDrive\Documents\Git\TMA Project\Azure\tma-training-DE-databricks\heartbeat_data\health_tracker_data_2020_3.txt"
+path_dir_4 = r"C:\Users\lmman\OneDrive\Documents\Git\TMA Project\Azure\tma-training-DE-databricks\heartbeat_data\health_tracker_data_2020_4.txt"
+path_dir_5 = r"C:\Users\lmman\OneDrive\Documents\Git\TMA Project\Azure\tma-training-DE-databricks\heartbeat_data\health_tracker_data_2020_5.txt"
+
+
+with open(path_dir_1,'w') as file:
+    file.writelines(health_tracker_data_2020_1.text)
+
+with open(path_dir_2,'w') as file:
+    file.writelines(health_tracker_data_2020_2.text)
+
+with open(path_dir_2_late,'w') as file:
+    file.writelines(health_tracker_data_2020_2_late.text)
+
+
+with open(path_dir_3,'w') as file:
+    file.writelines(health_tracker_data_2020_3.text)
+
+with open(path_dir_4,'w') as file:
+    file.writelines(health_tracker_data_2020_4.text)
+
+with open(path_dir_5,'w') as file:
+    file.writelines(health_tracker_data_2020_5.text)
