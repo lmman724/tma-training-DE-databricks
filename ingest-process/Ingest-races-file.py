@@ -1,6 +1,6 @@
 # Databricks notebook source
 import pyspark
-from pyspark.sql.types import StructType,StructField, IntegerType, StringType, DoubleType
+from pyspark.sql.types import StructType,StructField, IntegerType, StringType, DateType, TimestampType
 from pyspark.sql.functions import col, current_timestamp
 
 # COMMAND ----------
@@ -29,68 +29,66 @@ dbutils.fs.ls("/mnt/lmman724store/raw-data")
 
 # COMMAND ----------
 
-# circuits_df = spark.read\
+# races_df = spark.read\
 # .option("header", True)\
-# .csv("dbfs:/mnt/lmman724store/raw-data/circuits.csv")
+# .csv("dbfs:/mnt/lmman724store/raw-data/races.csv")
 
 # COMMAND ----------
 
-# circuits_df.show()
-# circuits_df.printSchema()
+# races_df.show()
+# races_df.printSchema()
 
 # COMMAND ----------
 
-schema_circuits = StructType(fields =[StructField("circuitId",IntegerType(), False ),
-                                      StructField("circuitRef",StringType(), True ),
+schema_races = StructType(fields =[StructField("raceId",IntegerType(), False ),
+                                      StructField("year",IntegerType(), True ),
+                                      StructField("round",IntegerType(), True ),
+                                      StructField("circuitId",IntegerType(), True ),
                                       StructField("name",StringType(), True ),
-                                      StructField("location",StringType(), True ),
-                                      StructField("country",StringType(), True ),
-                                      StructField("lat",DoubleType(), True ),
-                                      StructField("lng",DoubleType(), True ),
-                                      StructField("alt",IntegerType(), True ),
-                                      StructField("url",StringType(), True ),
+                                      StructField("date",DateType(), True ),
+                                      StructField("time",TimestampType(), True ),
+                                      StructField("url",StringType(), True )
 ])
 
 # COMMAND ----------
 
-circuits_df = spark.read\
+racces_df = spark.read\
 .option("header", True)\
-.schema(schema_circuits)\
-.csv("dbfs:/mnt/lmman724store/raw-data/circuits.csv")
+.schema(schema_races)\
+.csv("dbfs:/mnt/lmman724store/raw-data/races.csv")
 
 # COMMAND ----------
 
-circuits_df.printSchema()
+racces_df.printSchema()
 
 # COMMAND ----------
 
-circuits_df.show()
+racces_df.show()
 
 # COMMAND ----------
 
-circuits_df = circuits_df.select(col("circuitId"),col("circuitRef"),col("name"),col("location"),col("country"),col("lat"),col("lng"),col("alt"))
+racces_df = racces_df.select(col("raceId"),col("year"),col("round"),col("circuitId"),col("name"),col("date"),col("time"))
 
-circuits_df.printSchema()
-
-# COMMAND ----------
-
-circuits_df_rename = circuits_df.withColumnRenamed("circuitId","circuit_id")\
-                    .withColumnRenamed("circuitRef","circuit_ref")\
-                    .withColumnRenamed("lat","latitude")\
-                    .withColumnRenamed("lng","longtitude")\
-                    .withColumnRenamed("alt","altitude")
-circuits_df_rename.printSchema()
+racces_df.printSchema()
 
 # COMMAND ----------
 
-circuits_df_results = circuits_df_rename.withColumn("ingestion_date",current_timestamp() )
-
-
-circuits_df_results.show()
+racces_df_rename = racces_df.withColumnRenamed("raceId","race_id")\
+                    .withColumnRenamed("year","race_year")\
+                    .withColumnRenamed("circuitId","circuit_id")\
+                    .withColumnRenamed("date","race_timeslamp")
+racces_df_rename.printSchema()
 
 # COMMAND ----------
 
-circuits_df_results.write.mode("overwrite").parquet("/mnt/lmman724store/processed-data/circuits")
+racces_df_results = racces_df_rename.withColumn("ingestion_date",current_timestamp() )
+
+
+racces_df_results.show()
+
+# COMMAND ----------
+
+racces_df_results.write.mode("overwrite").parquet("/mnt/lmman724store/processed-data/races")
 
 # COMMAND ----------
 
