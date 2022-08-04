@@ -1,4 +1,6 @@
 # Databricks notebook source
+from numpy import partition
+from pandas import concat
 import pyspark
 from pyspark.sql.types import StructType,StructField, IntegerType, StringType, DateType, TimestampType
 from pyspark.sql.functions import col, current_timestamp
@@ -75,20 +77,22 @@ racces_df.printSchema()
 
 racces_df_rename = racces_df.withColumnRenamed("raceId","race_id")\
                     .withColumnRenamed("year","race_year")\
-                    .withColumnRenamed("circuitId","circuit_id")\
-                    .withColumnRenamed("date","race_timeslamp")
+                    .withColumnRenamed("circuitId","circuit_id")
 racces_df_rename.printSchema()
 
 # COMMAND ----------
 
-racces_df_results = racces_df_rename.withColumn("ingestion_date",current_timestamp() )
+racces_df_results = racces_df_rename.withColumn("ingestion_date",current_timestamp()\
+                    .withColumn('race_timestamp', to_timestamp(concat(col("date"),lit(""), col("time"), "yyyy-MM-dd HH:mm:ss"))) )
 
 
 racces_df_results.show()
 
 # COMMAND ----------
 
-racces_df_results.write.mode("overwrite").parquet("/mnt/lmman724store/processed-data/races")
+racces_df_results.write.mode("overwrite")\
+                .partitionBy("race_year")\
+                .parquet("/mnt/lmman724store/processed-data/races")
 
 # COMMAND ----------
 
