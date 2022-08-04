@@ -1,9 +1,9 @@
 # Databricks notebook source
 from numpy import partition
-from pandas import concat
 import pyspark
 from pyspark.sql.types import StructType,StructField, IntegerType, StringType, DateType, TimestampType
 from pyspark.sql.functions import col, current_timestamp
+from pyspark.sql.functions import date_format, to_timestamp, lit, concat
 
 # COMMAND ----------
 
@@ -48,7 +48,7 @@ schema_races = StructType(fields =[StructField("raceId",IntegerType(), False ),
                                       StructField("circuitId",IntegerType(), True ),
                                       StructField("name",StringType(), True ),
                                       StructField("date",DateType(), True ),
-                                      StructField("time",TimestampType(), True ),
+                                      StructField("time",StringType(), True ),
                                       StructField("url",StringType(), True )
 ])
 
@@ -82,21 +82,24 @@ racces_df_rename.printSchema()
 
 # COMMAND ----------
 
-racces_df_results = racces_df_rename.withColumn("ingestion_date",current_timestamp()\
-                    .withColumn('race_timestamp', to_timestamp(concat(col("date"),lit(""), col("time"), "yyyy-MM-dd HH:mm:ss"))) )
+races_with_timestamp_df = racces_df_rename.withColumn("ingestion_date", current_timestamp()) \
+                                  .withColumn("race_timestamp", to_timestamp(concat(col('date'), lit(' '), col('time')), 'yyyy-MM-dd HH:mm:ss'))
 
-
-racces_df_results.show()
+races_with_timestamp_df.show()
 
 # COMMAND ----------
 
-racces_df_results.write.mode("overwrite")\
+races_df_result = races_with_timestamp_df.select(col("race_id"),col("race_year"),col("round"),col("circuit_id"),col("name"),col("ingestion_date"),col("race_timestamp"))
+
+# COMMAND ----------
+
+races_df_result.write.mode("overwrite")\
                 .partitionBy("race_year")\
                 .parquet("/mnt/lmman724store/processed-data/races")
 
 # COMMAND ----------
 
-dbutils.fs.ls("/mnt/lmman724store/processed-data")
+dbutils.fs.ls("/mnt/lmman724store/processed-data/races")
 
 # COMMAND ----------
 
