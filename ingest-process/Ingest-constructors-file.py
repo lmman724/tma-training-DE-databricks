@@ -40,7 +40,7 @@ dbutils.fs.ls("/mnt/lmman724store/raw-data")
 
 # COMMAND ----------
 
-schema_contructors= StructType(fields =[StructField("constructorId",IntegerType(), False ),
+schema_circuits = StructType(fields =[StructField("constructorId",IntegerType(), False ),
                                       StructField("constructorRef",StringType(), True ),
                                       StructField("name",StringType(), True ),
                                       StructField("nationality",StringType(), True ),
@@ -49,41 +49,44 @@ schema_contructors= StructType(fields =[StructField("constructorId",IntegerType(
 
 # COMMAND ----------
 
-constructors_df = spark.read\
+circuits_df = spark.read\
 .option("header", True)\
-.schema(schema_contructors)\
-.json("dbfs:/mnt/lmman724store/raw-data/constructors.json")
+.schema(schema_circuits)\
+.json("dbfs:/mnt/lmman724store/raw-data/circuits.csv")
 
 # COMMAND ----------
 
-constructors_df.printSchema()
+circuits_df.printSchema()
 
 # COMMAND ----------
 
-constructors_df.show()
+circuits_df.show()
 
 # COMMAND ----------
 
-constructors_df = circuits_df.select(col("constructorId"),col("constructorRef"),col("name"),col("nationality"))
+circuits_df = circuits_df.select(col("circuitId"),col("circuitRef"),col("name"),col("location"),col("country"),col("lat"),col("lng"),col("alt"))
 
-constructors_df.printSchema()
-
-# COMMAND ----------
-
-constructors_df_rename = constructors_df.withColumnRenamed("constructorId","constructor_id")\
-                    .withColumnRenamed("constructorRef","constructor_ref")
-constructors_df_rename.printSchema()
+circuits_df.printSchema()
 
 # COMMAND ----------
 
-constructors_df_results = constructors_df_rename.withColumn("ingestion_date",current_timestamp() )
-
-
-constructors_df_results.show()
+circuits_df_rename = circuits_df.withColumnRenamed("circuitId","circuit_id")\
+                    .withColumnRenamed("circuitRef","circuit_ref")\
+                    .withColumnRenamed("lat","latitude")\
+                    .withColumnRenamed("lng","longtitude")\
+                    .withColumnRenamed("alt","altitude")
+circuits_df_rename.printSchema()
 
 # COMMAND ----------
 
-constructors_df_results.write.mode("overwrite").parquet("/mnt/lmman724store/processed-data/constructors")
+circuits_df_results = circuits_df_rename.withColumn("ingestion_date",current_timestamp() )
+
+
+circuits_df_results.show()
+
+# COMMAND ----------
+
+circuits_df_results.write.mode("overwrite").parquet("/mnt/lmman724store/processed-data/circuits")
 
 # COMMAND ----------
 

@@ -40,57 +40,56 @@ dbutils.fs.ls("/mnt/lmman724store/raw-data")
 
 # COMMAND ----------
 
-schema_circuits = StructType(fields =[StructField("circuitId",IntegerType(), False ),
-                                      StructField("circuitRef",StringType(), True ),
+schema_drives = StructType(fields =[StructField("driverId",IntegerType(), False ),
+                                      StructField("driverRef",StringType(), True ),
+                                      StructField("number",IntegerType(), True ),
+                                      StructField("code",StringType(), True ),
                                       StructField("name",StringType(), True ),
-                                      StructField("location",StringType(), True ),
-                                      StructField("country",StringType(), True ),
-                                      StructField("lat",DoubleType(), True ),
-                                      StructField("lng",DoubleType(), True ),
-                                      StructField("alt",IntegerType(), True ),
+                                      StructField("dob",StringType(), True ),
+                                      StructField("nationality",StringType(), True ),
                                       StructField("url",StringType(), True ),
 ])
 
 # COMMAND ----------
 
-circuits_df = spark.read\
+drivers_df = spark.read\
 .option("header", True)\
-.schema(schema_circuits)\
-.csv("dbfs:/mnt/lmman724store/raw-data/circuits.csv")
+.schema(schema_drives)\
+.json("dbfs:/mnt/lmman724store/raw-data/drivers.json")
 
 # COMMAND ----------
 
-circuits_df.printSchema()
+drivers_df.printSchema()
 
 # COMMAND ----------
 
-circuits_df.show()
+drivers_df.show()
 
 # COMMAND ----------
 
-circuits_df = circuits_df.select(col("circuitId"),col("circuitRef"),col("name"),col("location"),col("country"),col("lat"),col("lng"),col("alt"))
+drivers_df = drivers_df.select(col("driverId"),col("driverRef"),col("number"),col("code"),col("name"),col("dob"),col("nationality"))
 
-circuits_df.printSchema()
-
-# COMMAND ----------
-
-circuits_df_rename = circuits_df.withColumnRenamed("circuitId","circuit_id")\
-                    .withColumnRenamed("circuitRef","circuit_ref")\
-                    .withColumnRenamed("lat","latitude")\
-                    .withColumnRenamed("lng","longtitude")\
-                    .withColumnRenamed("alt","altitude")
-circuits_df_rename.printSchema()
+drivers_df.printSchema()
 
 # COMMAND ----------
 
-circuits_df_results = circuits_df_rename.withColumn("ingestion_date",current_timestamp() )
+drivers_df_rename = drivers_df.withColumnRenamed("driverId","driver_id")\
+                    .withColumnRenamed("driverRef","driver_ref")
 
-
-circuits_df_results.show()
+drivers_df_rename.printSchema()
 
 # COMMAND ----------
 
-circuits_df_results.write.mode("overwrite").parquet("/mnt/lmman724store/processed-data/circuits")
+drivers_df_results = drivers_df_rename.withColumn("ingestion_date",current_timestamp())/
+                        
+
+
+
+drivers_df_results.show()
+
+# COMMAND ----------
+
+drivers_df_results.write.mode("overwrite").parquet("/mnt/lmman724store/processed-data/circuits")
 
 # COMMAND ----------
 

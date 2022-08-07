@@ -40,7 +40,7 @@ dbutils.fs.ls("/mnt/lmman724store/raw-data")
 
 # COMMAND ----------
 
-schema_circuits = StructType(fields =[StructField("circuitId",IntegerType(), False ),
+schema_pit_stops = StructType(fields =[StructField("circuitId",IntegerType(), False ),
                                       StructField("circuitRef",StringType(), True ),
                                       StructField("name",StringType(), True ),
                                       StructField("location",StringType(), True ),
@@ -53,44 +53,38 @@ schema_circuits = StructType(fields =[StructField("circuitId",IntegerType(), Fal
 
 # COMMAND ----------
 
-circuits_df = spark.read\
+pit_stops_df = spark.read\
 .option("header", True)\
 .schema(schema_circuits)\
 .csv("dbfs:/mnt/lmman724store/raw-data/circuits.csv")
 
 # COMMAND ----------
 
-circuits_df.printSchema()
+pit_stops_df.printSchema()
 
 # COMMAND ----------
 
-circuits_df.show()
+pit_stops_df.show()
+
+# COMMAND ----------
+pit_stops_df.printSchema()
 
 # COMMAND ----------
 
-circuits_df = circuits_df.select(col("circuitId"),col("circuitRef"),col("name"),col("location"),col("country"),col("lat"),col("lng"),col("alt"))
-
-circuits_df.printSchema()
-
-# COMMAND ----------
-
-circuits_df_rename = circuits_df.withColumnRenamed("circuitId","circuit_id")\
-                    .withColumnRenamed("circuitRef","circuit_ref")\
-                    .withColumnRenamed("lat","latitude")\
-                    .withColumnRenamed("lng","longtitude")\
-                    .withColumnRenamed("alt","altitude")
-circuits_df_rename.printSchema()
+pit_stops_df_rename = pit_stops_df.withColumnRenamed("raceId","circuit_id")\
+                    .withColumnRenamed("driverId","circuit_ref")
+pit_stops_df_rename.printSchema()
 
 # COMMAND ----------
 
-circuits_df_results = circuits_df_rename.withColumn("ingestion_date",current_timestamp() )
+pit_stops_df_rusults = pit_stops_df_rename.withColumn("ingestion_date",current_timestamp() )
 
 
-circuits_df_results.show()
+pit_stops_df_rusults.show()
 
 # COMMAND ----------
 
-circuits_df_results.write.mode("overwrite").parquet("/mnt/lmman724store/processed-data/circuits")
+pit_stops_df_rusults.write.mode("overwrite").parquet("/mnt/lmman724store/processed-data/pit_stops")
 
 # COMMAND ----------
 

@@ -1,4 +1,5 @@
 # Databricks notebook source
+from tkinter.tix import COLUMN
 import pyspark
 from pyspark.sql.types import StructType,StructField, IntegerType, StringType, DoubleType
 from pyspark.sql.functions import col, current_timestamp
@@ -40,57 +41,67 @@ dbutils.fs.ls("/mnt/lmman724store/raw-data")
 
 # COMMAND ----------
 
-schema_circuits = StructType(fields =[StructField("circuitId",IntegerType(), False ),
-                                      StructField("circuitRef",StringType(), True ),
-                                      StructField("name",StringType(), True ),
-                                      StructField("location",StringType(), True ),
-                                      StructField("country",StringType(), True ),
-                                      StructField("lat",DoubleType(), True ),
-                                      StructField("lng",DoubleType(), True ),
-                                      StructField("alt",IntegerType(), True ),
-                                      StructField("url",StringType(), True ),
-])
-
+schema_results = StructType(fields =[StructField("resultId",IntegerType(), False ),
+                                      StructField("raceId",IntegerType(), True ),
+                                      StructField("driverId",IntegerType(), True ),
+                                      StructField("constructorId",IntegerType(), True ),
+                                      StructField("number",IntegerType(), True ),
+                                      StructField("grid",IntegerType(), True ),
+                                      StructField("positionText",IntegerType(), True ),
+                                      StructField("positionOrder",IntegerType(), True ),
+                                      StructField("points",IntegerType(), True ),
+                                      StructField("laps",IntegerType(), True ),
+                                      StructField("time",StringType(), True ),
+                                      StructField("milliseconds",IntegerType(), True ),
+                                      StructField("fastestLap",IntegerType(), True ),
+                                      StructField("rank",IntegerType(), True ),
+                                      StructField("fastestLapTime",StringType(), True ),
+                                      StructField("fastestLapSpeed",DoubleType(), True ),
+                                      StructField("statusId",IntegerType(), True ),
+    ])
 # COMMAND ----------
 
-circuits_df = spark.read\
+results_df = spark.read\
 .option("header", True)\
-.schema(schema_circuits)\
-.csv("dbfs:/mnt/lmman724store/raw-data/circuits.csv")
+.schema(schema_results)\
+.json("dbfs:/mnt/lmman724store/raw-data/results.json")
 
 # COMMAND ----------
 
-circuits_df.printSchema()
+results_df.printSchema()
 
 # COMMAND ----------
 
-circuits_df.show()
+results_df.show()
 
 # COMMAND ----------
 
-circuits_df = circuits_df.select(col("circuitId"),col("circuitRef"),col("name"),col("location"),col("country"),col("lat"),col("lng"),col("alt"))
+results_df = results_df.drop(col("statusId"))
 
-circuits_df.printSchema()
-
-# COMMAND ----------
-
-circuits_df_rename = circuits_df.withColumnRenamed("circuitId","circuit_id")\
-                    .withColumnRenamed("circuitRef","circuit_ref")\
-                    .withColumnRenamed("lat","latitude")\
-                    .withColumnRenamed("lng","longtitude")\
-                    .withColumnRenamed("alt","altitude")
-circuits_df_rename.printSchema()
+results_df.printSchema()
 
 # COMMAND ----------
 
-circuits_df_results = circuits_df_rename.withColumn("ingestion_date",current_timestamp() )
-
-
-circuits_df_results.show()
+results_df_rename = results_df.withColumnRenamed("resultId","result_id")\
+                    .withColumnRenamed("raceId","race_id")\
+                    .withColumnRenamed("driverId","driver_id")\
+                    .withColumnRenamed("positionText","position_text")\
+                    .withColumnRenamed("fastestLap","fastest_lap")\
+                    .withColumnRenamed("positionOrder","position_order")\
+                    .withColumnRenamed("fastestLapTime","fastest_lap_time")\
+                    .withColumnRenamed("fastestLapSpeed","fastest_lap_speed")
+results_df_rename.printSchema()
 
 # COMMAND ----------
 
-circuits_df_results.write.mode("overwrite").parquet("/mnt/lmman724store/processed-data/circuits")
+results_df_results = results_df_rename.withColumn("ingestion_date",current_timestamp() )
+
+
+results_df_results.show()
+
+# COMMAND ----------
+
+results_df_results.write.mode("overwrite").parquet("/mnt/lmman724store/processed-data/results")
 
 # COMMAND ----------
 
