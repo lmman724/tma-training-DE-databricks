@@ -6,9 +6,9 @@ from pyspark.sql.functions import col, current_timestamp
 # COMMAND ----------
 
 storage_account_name = "lmman724store"
-client_id            = dbutils.secrets.get(scope="lmman724-scope", key="databricks-app-client-id")
+client_id            = dbutils.secrets.get(scope="lmman724-scope", key="databricks-app-app-id")
 tenant_id            = dbutils.secrets.get(scope="lmman724-scope", key="databricks-app-tenant-id")
-client_secret        = dbutils.secrets.get(scope="lmman724-scope", key="databricks-app-client-secret")
+client_secret        = dbutils.secrets.get(scope="lmman724-scope", key="databricks-app-secret")
 
 # COMMAND ----------
 
@@ -25,18 +25,11 @@ display(dbutils.fs.mounts())
 
 # COMMAND ----------
 
-dbutils.fs.ls("/mnt/lmman724store/raw-data")
+dbutils.fs.ls("/mnt/lmman724store/training-formular-databricks")
 
 # COMMAND ----------
 
-# circuits_df = spark.read\
-# .option("header", True)\
-# .csv("dbfs:/mnt/lmman724store/raw-data/circuits.csv")
-
-# COMMAND ----------
-
-# circuits_df.show()
-# circuits_df.printSchema()
+dbutils.fs.ls("/mnt/lmman724store/training-formular-databricks/raw-data")
 
 # COMMAND ----------
 
@@ -56,7 +49,7 @@ schema_circuits = StructType(fields =[StructField("circuitId",IntegerType(), Fal
 circuits_df = spark.read\
 .option("header", True)\
 .schema(schema_circuits)\
-.csv("dbfs:/mnt/lmman724store/raw-data/circuits.csv")
+.csv("dbfs:/mnt/lmman724store/training-formular-databricks/raw-data/circuits.csv")
 
 # COMMAND ----------
 
@@ -90,11 +83,15 @@ circuits_df_results.show()
 
 # COMMAND ----------
 
-circuits_df_results.write.mode("overwrite").parquet("/mnt/lmman724store/processed-data/circuits")
+dbutils.fs.ls("/mnt/lmman724store/training-formular-databricks")
 
 # COMMAND ----------
 
-dbutils.fs.ls("/mnt/lmman724store/processed-data")
+circuits_df_results.write.mode("overwrite").parquet("/mnt/lmman724store/training-formular-databricks/ingested-data/circuits")
+
+# COMMAND ----------
+
+dbutils.fs.ls("/mnt/lmman724store/training-formular-databricks/ingested-data/circuits")
 
 # COMMAND ----------
 
